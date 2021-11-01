@@ -1,7 +1,7 @@
 //import web3 from '../ethereum/web3';
 
 const Money = artifacts.require("../contracts/Money.sol");
-const MyNFT721 = artifacts.require("../contracts/MyNFT721.sol");
+const Tickets = artifacts.require("../contracts/Tickets.sol");
 const Market = artifacts.require("../contracts/Market.sol");
 
 /*contract("Money and NFT and Market", accounts => {
@@ -76,7 +76,8 @@ contract("Test MyNFT721", async accounts => {
 })
 */
 
-contract("test market and open and execute a trade", async accounts => {
+/* TEST for marketplace that sells ERC721 */
+/*contract("test market and open and execute a trade", async accounts => {
 	let market;
 	let money;
 	let myNFT721;
@@ -138,4 +139,71 @@ contract("test market and open and execute a trade", async accounts => {
 
 	});
 })
+*/
+
+/* Test for marketplace that sells ERC1155 */
+contract("test market and open and execute a trade", async accounts => {
+	let market;
+	let money;
+	let tickets;
+	let ticket_price;
+
+	it("Created the marketplace, created ERC1155 1000 NFTs, and distributed some MNY", async () =>{
+		market = await Market.deployed();
+		money = await Money.deployed();
+		tickets = await Tickets.deployed();
+		//ticket_price = await tickets.PRICE;
+		ticket_price = 100;
+
+		//await money.approve(accounts[0], 1000*10**18);
+
+		await money.increaseAllowance(accounts[1],10000);
+		await money.transfer(accounts[1], 10000);
+
+		await money.increaseAllowance(accounts[2],10000);
+		await money.transfer(accounts[2], 10000);
+		
+		await money.increaseAllowance(market.address, 100000);
+
+		const A0_bal = await money.balanceOf(accounts[0]);
+		const A1_bal = await money.balanceOf(accounts[1]);
+		const A2_bal = await money.balanceOf(accounts[2]);
+		console.log(" Balances of account 0, 1 and 2 ", A0_bal.toString(), A1_bal.toString(), A2_bal.toString());
+
+		const market_money = await market.currencyToken;
+		const market_nft = await market.itemToken;
+
+		//const totsupply = await tickets.totalSupply();
+		//console.log(" total supply of nft is ", totsupply.toNumber());
+		await tickets.setApprovalForAll(market.address, true);
+		console.log("approved market place for receiving all trades");
+
+		const nftbal0 = await tickets.balanceOf(accounts[0],0);
+		
+		const nftbal1 = await tickets.balanceOf(accounts[1],0);
+		console.log(" Tickets held by accounts 0 and 1 =  ", nftbal0.toNumber(), nftbal1.toNumber());
+		//const totsupplyAfter = await tickets.totalSupply();
+		//console.log(" NOW: total supply of nft is ", totsupplyAfter.toNumber());
+		
+		
+		await market.openTrade(0, 10, ticket_price, {from: accounts[0]});
+		console.log("Opened trade for item 0 at price ", ticket_price);
+		let poster, item, amount, price, status, result;
+		result = await market.getTrade(0);
+		console.log(" Got trade -", result[0], result[1], result[2], result[3], result[4].toString());
+		//await myNFT721.approve()
+		//buyer is accounts[1], so he sends the erc20 and receives the erc721
+		await money.increaseAllowance(market.address, 1000, {from: accounts[1]});
+		await market.executeTrade(0, {from: accounts[1]});
+		console.log(" executed trade by accounts[1]");
+		const newnftbal1 = await tickets.balanceOf(accounts[1],0);
+		const newnftbal0 = await tickets.balanceOf(accounts[0],0);
+		console.log("now tickets help by accounts[0] and 1 = ", newnftbal0.toNumber(), newnftbal1.toNumber());
+		const newbal1 = await money.balanceOf(accounts[1]);
+		const newbal0 = await money.balanceOf(accounts[0]);
+		console.log(" accounts 0 = ", newbal0.toString(), " of 1 = ", newbal1.toString());
+
+	});
+})
+
 
