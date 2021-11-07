@@ -24,11 +24,13 @@ import "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol";
  
 contract Market is IERC1155Receiver {
     event TradeStatusChange(uint256 ad, bytes32 status);
+    event TicketsSold(address buyer, uint256 item, uint256 amount);
 
     IERC20 public currencyToken;
     IERC1155 public itemToken;
-
-    
+    address[] public buyers;
+    mapping(address => uint256) buyers_to_lastprice;
+    uint256 public num_buyers;
     struct Trade {
         address poster;
         uint256 item;
@@ -39,7 +41,7 @@ contract Market is IERC1155Receiver {
 
     mapping(uint256 => Trade) public trades;
 
-    uint256 tradeCounter;
+    uint256 public tradeCounter;
     
     constructor (address _currencyTokenAddress, address _itemTokenAddress)
         public
@@ -48,6 +50,7 @@ contract Market is IERC1155Receiver {
         currencyToken = IERC20(_currencyTokenAddress);
         itemToken = IERC1155(_itemTokenAddress);
         tradeCounter = 0;
+        num_buyers = 0;
     }
 
     /**
@@ -94,17 +97,39 @@ contract Market is IERC1155Receiver {
      * item to the filler.
      * @param _trade The id of an existing trade
      */
-    function executeTrade(uint256 _trade)
+    function executeTrade(uint256 _trade, uint256 _amount)
         public
         virtual
     {
         Trade memory trade = trades[_trade];
         require(trade.status == "Open", "Trade is not Open.");
-        currencyToken.transferFrom(msg.sender, trade.poster, trade.price);
+        require(trade.amount >= _amount, " Not enough tickets available for your request to buy");
+        //console.log("Transferring MNY = ", trade.price * _amount);
+        currencyToken.transferFrom(msg.sender, trade.poster, trade.price*_amount);
         //approve the buyer to buy this token.
         itemToken.setApprovalForAll(msg.sender, true);
-        itemToken.safeTransferFrom(address(this), msg.sender, trade.item, trade.amount, "0x00");
-        trades[_trade].status = "Executed";
+        itemToken.safeTransferFrom(address(this), msg.sender, trade.item, _amount, "0x00");
+        emit TicketsSold(msg.sender, trade.item, _amount);
+        bool found=false;
+        for(uint i=0; i< num_buyers; i++) {
+            if (buyers[i] == msg.sender) {
+                found = true;
+                break;
+            }
+        }
+        if (found == false) {
+            buyers.push(msg.sender);
+            num_buyers += 1;
+            buyers_to_lastprice[msg.sender] = trades[_trade].price;
+        }
+        //if not all tickets sold, keep this trade open.
+        //change the contract, not the copy
+        trades[_trade].amount -= _amount;
+        if (trades[_trade].amount == 0) {
+            trades[_trade].status = "Executed";
+        } else {
+            //do nothing, trade stays open
+        }
         emit TradeStatusChange(_trade, "Executed");
     }
 

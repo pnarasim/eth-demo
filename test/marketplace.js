@@ -185,23 +185,40 @@ contract("test market and open and execute a trade", async accounts => {
 		//const totsupplyAfter = await tickets.totalSupply();
 		//console.log(" NOW: total supply of nft is ", totsupplyAfter.toNumber());
 		
-		
-		await market.openTrade(0, 10, ticket_price, {from: accounts[0]});
-		console.log("Opened trade for item 0 at price ", ticket_price);
+		let want_to_sell, want_to_buy;
+		want_to_buy = 1;
+		want_to_sell = 500;
+		await market.openTrade(0, want_to_sell, ticket_price, {from: accounts[0]});
+		console.log("Opened trade for ", want_to_sell, " numbers of item 0 at price ", ticket_price);
 		let poster, item, amount, price, status, result;
 		result = await market.getTrade(0);
-		console.log(" Got trade -", result[0], result[1], result[2], result[3], result[4].toString());
+		console.log(" Got trade -", result[0], result[1], result[2], result[3], result[4]);
 		//await myNFT721.approve()
 		//buyer is accounts[1], so he sends the erc20 and receives the erc721
-		await money.increaseAllowance(market.address, 1000, {from: accounts[1]});
-		await market.executeTrade(0, {from: accounts[1]});
+		await money.increaseAllowance(market.address, ticket_price, {from: accounts[1]});
+		await market.executeTrade(0, want_to_buy, {from: accounts[1]});
 		console.log(" executed trade by accounts[1]");
-		const newnftbal1 = await tickets.balanceOf(accounts[1],0);
-		const newnftbal0 = await tickets.balanceOf(accounts[0],0);
-		console.log("now tickets help by accounts[0] and 1 = ", newnftbal0.toNumber(), newnftbal1.toNumber());
-		const newbal1 = await money.balanceOf(accounts[1]);
-		const newbal0 = await money.balanceOf(accounts[0]);
+		let newnftbal1 = await tickets.balanceOf(accounts[1],0);
+		let newnftbal0 = await tickets.balanceOf(accounts[0],0);
+		let nftbal_mkt = await tickets.balanceOf(market.address,0);
+		console.log("now tickets help by accounts[0] = ", newnftbal0.toNumber(), " by accounts[1] = ", newnftbal1.toNumber(), " and marketplace = ", nftbal_mkt.toNumber());
+		let newbal1 = await money.balanceOf(accounts[1]);
+		let newbal0 = await money.balanceOf(accounts[0]);
 		console.log(" accounts 0 = ", newbal0.toString(), " of 1 = ", newbal1.toString());
+
+		console.log("Accounts[2] buys another 10 tickets ");
+		want_to_buy = 10;
+		await money.increaseAllowance(market.address, ticket_price*want_to_buy, {from: accounts[2]});
+		await market.executeTrade(0, want_to_buy, {from: accounts[2]});
+		console.log(" executed trade by accounts[2]");
+		let newnftbal2 = await tickets.balanceOf(accounts[2],0);
+		newnftbal0 = await tickets.balanceOf(accounts[0],0);
+		nftbal_mkt = await tickets.balanceOf(market.address,0);
+		console.log("now tickets help by accounts[0] = ", newnftbal0.toNumber(), " by accounts[2] = ", newnftbal2.toNumber(), " and marketplace = ", nftbal_mkt.toNumber());
+		let newbal2 = await money.balanceOf(accounts[2]);
+		newbal0 = await money.balanceOf(accounts[0]);
+		console.log(" accounts 0 = ", newbal0.toString(), " of 2 = ", newbal2.toString());
+
 
 	});
 })

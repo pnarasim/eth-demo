@@ -10,7 +10,7 @@ import "@openzeppelin/contracts/token/ERC1155/presets/ERC1155PresetMinterPauser.
 
 contract Tickets is ERC1155PresetMinterPauser {
     uint256 public constant TICKETS = 0;
-    uint256 public constant PRICE=100;
+    uint256 public constant PRICE=10;
     
     constructor(uint num_tickets)  ERC1155PresetMinterPauser("https://github.com/pnarasim/hohum/blob/main/MelaTicketsERC1155/{id}.json") {
         _mint(msg.sender, TICKETS, num_tickets, "");
