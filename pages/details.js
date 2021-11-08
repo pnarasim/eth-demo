@@ -37,15 +37,15 @@ class TicketsDetails extends Component {
                                 money_address
                             );
 
-                let accounts_interacted = [tickets_admin, market_address];
-                let num_buyers = await market.methods.num_buyers().call();
-                //console.log(" Num buyers = ", num_buyers);
-                let next_buyer;
-                for (var i =0; i< parseInt(num_buyers); i++) {
-                    next_buyer = await market.methods.buyers(i).call();
-                    accounts_interacted.push(next_buyer);
+                let itemOwnersCount = await market.methods.itemOwnersCount().call();
+                let itemOwners = [];
+                let itemOwner;
+                for (var i=0; i< itemOwnersCount; i++) {
+                    itemOwner = await market.methods.itemOwners(i).call();
+                    itemOwners.push(itemOwner);
                 }
-                console.log(" All ticket holders = ", accounts_interacted);
+                console.log(" Num  of ticket owners = ", itemOwnersCount);
+                console.log(" All ticket holders = ", itemOwners);
                 //console.log(" market = ", market_address);
                 //console.log(" money = ", money_address);
                 //console.log(" tickets = ", tickets_address);
@@ -53,18 +53,18 @@ class TicketsDetails extends Component {
                 const currency_name = await money.methods.name().call();
                 const money_balance = await money.methods.balanceOf(tickets_admin).call();
                 console.log(" ADMIN account = ", tickets_admin, " His MNY = ", money_balance, " Tickets = ", tickets_available);
-                return { market_address, money_address, tickets_address, accounts_interacted};
+                return { market_address, money_address, tickets_address, itemOwners};
         }
 
         
         showMyBalance() {
             //event.preventDefault();
-            const { market_address, money_address, tickets_address, accounts_interacted } = this.props;
+            const { market_address, money_address, tickets_address, itemOwners } = this.props;
             try {
                 
                 let item;
-                console.log(" Account details for ", accounts_interacted);
-                const items = accounts_interacted.map(
+                console.log(" Account details for ", itemOwners);
+                const items = itemOwners.map(
                         address => {
                             return {
                                 header: address,

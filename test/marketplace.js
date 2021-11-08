@@ -152,9 +152,8 @@ contract("test market and open and execute a trade", async accounts => {
 		market = await Market.deployed();
 		money = await Money.deployed();
 		tickets = await Tickets.deployed();
-		//ticket_price = await tickets.PRICE;
-		ticket_price = 100;
-
+		ticket_price = await tickets.PRICE();
+		
 		//await money.approve(accounts[0], 1000*10**18);
 
 		await money.increaseAllowance(accounts[1],10000);
@@ -218,7 +217,13 @@ contract("test market and open and execute a trade", async accounts => {
 		let newbal2 = await money.balanceOf(accounts[2]);
 		newbal0 = await money.balanceOf(accounts[0]);
 		console.log(" accounts 0 = ", newbal0.toString(), " of 2 = ", newbal2.toString());
-
+		let itemOwnersCount = await market.itemOwnersCount();
+		let itemOwner;
+		console.log(itemOwnersCount, " owners of tickets ");
+		for (var i=0; i< itemOwnersCount; i++) {
+			itemOwner = await market.itemOwners(i);
+			console.log(" ", itemOwner);
+		}
 
 	});
 })

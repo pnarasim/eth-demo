@@ -28,9 +28,8 @@ contract Market is IERC1155Receiver {
 
     IERC20 public currencyToken;
     IERC1155 public itemToken;
-    address[] public buyers;
-    mapping(address => uint256) buyers_to_lastprice;
-    uint256 public num_buyers;
+    address[] public itemOwners;
+    uint256 public itemOwnersCount;
     struct Trade {
         address poster;
         uint256 item;
@@ -50,7 +49,7 @@ contract Market is IERC1155Receiver {
         currencyToken = IERC20(_currencyTokenAddress);
         itemToken = IERC1155(_itemTokenAddress);
         tradeCounter = 0;
-        num_buyers = 0;
+        itemOwnersCount = 0;
     }
 
     /**
@@ -88,6 +87,14 @@ contract Market is IERC1155Receiver {
             status: "Open"
         });
         tradeCounter += 1;
+        //if this is the first trade, add the market itself to the list of owners 
+        if (tradeCounter == 1) {
+            itemOwners.push(address(this));
+            itemOwnersCount += 1;
+        }
+        //for all subsequent trades, add the seller also to the owners, as he was/is also a owner
+        itemOwners.push(msg.sender);
+        itemOwnersCount += 1;
         emit TradeStatusChange(tradeCounter - 1, "Open");
     }
 
@@ -111,16 +118,15 @@ contract Market is IERC1155Receiver {
         itemToken.safeTransferFrom(address(this), msg.sender, trade.item, _amount, "0x00");
         emit TicketsSold(msg.sender, trade.item, _amount);
         bool found=false;
-        for(uint i=0; i< num_buyers; i++) {
-            if (buyers[i] == msg.sender) {
+        for(uint i=0; i< itemOwnersCount; i++) {
+            if (itemOwners[i] == msg.sender) {
                 found = true;
                 break;
             }
         }
         if (found == false) {
-            buyers.push(msg.sender);
-            num_buyers += 1;
-            buyers_to_lastprice[msg.sender] = trades[_trade].price;
+            itemOwners.push(msg.sender);
+            itemOwnersCount += 1;
         }
         //if not all tickets sold, keep this trade open.
         //change the contract, not the copy

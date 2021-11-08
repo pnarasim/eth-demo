@@ -34,15 +34,15 @@ class TicketSales extends Component {
                             JSON.parse(JSON.stringify(Money.abi)),
                             money_address
                         );    
-            let accounts_interacted = [tickets_admin, market_address];
-            let num_buyers = await market.methods.num_buyers().call();
-            //console.log(" Num buyers = ", num_buyers);
-            let next_buyer;
-            for (var i =0; i< parseInt(num_buyers); i++) {
-                next_buyer = await market.methods.buyers(i).call();
-                accounts_interacted.push(next_buyer);
+            let itemOwnersCount = await market.methods.itemOwnersCount().call();
+            let itemOwners = [];
+            let itemOwner;
+            for (var i=0; i< itemOwnersCount; i++) {
+                itemOwner = await market.methods.itemOwners(i).call();
+                itemOwners.push(itemOwner);
             }
-            //console.log(" All ticket holders = ", accounts_interacted);
+            console.log(" Num  of ticket owners = ", itemOwnersCount);
+            console.log(" All ticket holders = ", itemOwners);
             const num_trades = await market.methods.tradeCounter().call();
             //console.log(" number of trades available are ", num_trades);
             let trades = [];
@@ -54,7 +54,7 @@ class TicketSales extends Component {
             console.log(" Trades are ", trades);
             const ticket_price = await tickets.methods.PRICE().call();
             console.log(" Tickets were set to price ", ticket_price, " in the NFT1153 contract");
-            return { market_address, money_address, tickets_address, accounts_interacted, num_trades, trades, ticket_price};
+            return { market_address, money_address, tickets_address, itemOwners, num_trades, trades, ticket_price};
         }
 
         sellTickets = async (event) => {
@@ -63,7 +63,7 @@ class TicketSales extends Component {
             this.setState({loading: true, errMessage:''});
             console.log("Putting tickets on sale");
             try {
-                const { market_address, money_address, tickets_address, ticket_price } = this.props;
+                const { market_address, money_address, tickets_address, itemOwners, num_trades, trades, ticket_price } = this.props;
                 this.setState({ticket_price});
                 const tickets = new web3.eth.Contract(
                                         JSON.parse(JSON.stringify(Tickets.abi)),
@@ -88,7 +88,7 @@ class TicketSales extends Component {
                     this.setState({ errMessage: "Not so many tickets"});
                     assert.fail("You dont have that many tickets to sell");
                 }
-                require(this.state.ticket_price <= ticket_price);
+                //require(this.state.ticket_price <= ticket_price);
                 let res2 = await tickets.methods.setApprovalForAll(market_address, true).send({from: my_account});
                 console.log("approved market place, ", market_address, " for receiving all trades");
 
@@ -107,7 +107,7 @@ class TicketSales extends Component {
 
         
         showMarketTrades() {
-            let { market_address, money_address, tickets_address, accounts_interacted, num_trades, trades} = this.props;
+            let { market_address, money_address, tickets_address, itemOwners, num_trades, trades} = this.props;
             console.log("Trades are ", trades);
             //this.setState({errMessage:''});
             try {
@@ -116,7 +116,7 @@ class TicketSales extends Component {
                 const items = open_trades.map(
                         (trade,index) => {
                             return {
-                                header: `${trade[2]} tickets for Sale`,
+                                header: `${trade[2]} tickets for Sale Price = ${trade[3]} MNY`,
                                 meta: `From Seller ${trade[0]}`,
                                 extra: `Sale Status = ${web3.utils.toAscii(trade[4])}`,
                                 description: <Link route={`/buytickets/${index}`}><a>Buy tickets</a></Link>,
@@ -152,6 +152,7 @@ class TicketSales extends Component {
                                 <Form.Field>
                                     <Input 
                                         placeholder='1' 
+                                        disabled={true}
                                         labelPosition='top'
                                         label="Price to Sell at" 
                                         value={this.state.ticket_price}

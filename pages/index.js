@@ -27,8 +27,8 @@ class TicketsHome extends Component {
                                 JSON.parse(JSON.stringify(Money.abi)),
                                 money_address
                             );    
-                let num_buyers = await market.methods.num_buyers().call();
-                console.log(" Buyers array = ", num_buyers);
+                let itemOwnersCount = await market.methods.itemOwnersCount().call();
+                console.log(" Number of ticket owners = ", itemOwnersCount);
 
                 //console.log(" market = ", market_address);
                 //console.log(" money = ", money_address);
@@ -64,7 +64,7 @@ class TicketsHome extends Component {
                     {
                         header: "NFT tickets (1000) deployed",
                         meta: tickets_address,
-                        description: 'The contract address of the ERC 1153 contract contianing the 1000 tickets deployed',
+                        description: 'The contract address of the ERC 1153 contract containing the 1000 tickets deployed',
                         style: { overflowWrap: 'break-word' }
                     }, 
                     {
