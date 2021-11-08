@@ -1,2 +1,5 @@
 # eth-demo
-Marketplace for ERC 721 on sale for ERC20s. Will also add ERC1155s for sale here.
+Marketplace for exchange of ERC1153 for ERC20s.
+No provision for royalties etc
+But owners can buy and sell any number of tickets, any number of times.
+
