@@ -1,13 +1,16 @@
 # use exsiting docker image as base
 FROM node:alpine
 
-WORKDIR /Users/priyanarasimhan/Dev/blockchain/settlemint-demo/eth-demo
+WORKDIR /usr/app
 
 
 # download and install dependencies
-COPY ./ ./
+COPY ./package.json ./
 RUN npm install --legacy-peer-deps
+COPY ./ ./
 
 # tell the image what to do when it starts as a container
+# i ran truffle compile and copied over the json contracts manually.
+
 CMD ["npm", "run", "dev"]
 
