@@ -1,5 +1,6 @@
 # eth-demo
 Marketplace for exchange of ERC1153 for ERC20s.
-No provision for royalties etc
-But owners can buy and sell any number of tickets, any number of times.
 
+-This project demonstrates a simple marketplace where NFT tickets adhering to the ERC1153 standard can be bought and sold in exchange for a fixed number of ERC20 fungible tokens.
+
+-Features like royalties etc have not been incorporated. But users can buy and sell their tickets any number of times via the marketplace. 
