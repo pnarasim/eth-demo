@@ -64,7 +64,7 @@ class TicketsHome extends Component {
                     {
                         header: "NFT tickets (1000) deployed",
                         meta: tickets_address,
-                        description: 'The contract address of the ERC 1153 contract containing the 1000 tickets deployed',
+                        description: 'The contract address of the ERC 1155 contract containing the 1000 tickets deployed',
                         style: { overflowWrap: 'break-word' }
                     }, 
                     {

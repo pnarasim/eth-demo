@@ -53,7 +53,7 @@ class TicketSales extends Component {
             }
             console.log(" Trades are ", trades);
             const ticket_price = await tickets.methods.PRICE().call();
-            console.log(" Tickets were set to price ", ticket_price, " in the NFT1153 contract");
+            console.log(" Tickets were set to price ", ticket_price, " in the NFT1155 contract");
             return { market_address, money_address, tickets_address, itemOwners, num_trades, trades, ticket_price};
         }
 
