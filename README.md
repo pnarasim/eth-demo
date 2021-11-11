@@ -20,5 +20,10 @@ Follow the links to get the ERC20 tokens, buy or sell the ERC1155 tickets or vie
 - git checkout master.
 - npm install truffle
 - npm install
-- truffle compile //if making changes to the contracts
-- npm run dev // starts a server at localhost:3000
+- //if making changes to the contracts
+- truffle compile
+- // deploy to rinkeby
+- truffle migrate --network rinkeby 
+-	//copy the market contract address from the migration output to the pages/market.js file
+- // starts a server at localhost:3000
+- npm run dev 
