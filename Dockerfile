@@ -1,5 +1,6 @@
 # use exsiting docker image as base
 FROM node:alpine
+RUN apk add g++ make python3
 
 WORKDIR /usr/app
 
